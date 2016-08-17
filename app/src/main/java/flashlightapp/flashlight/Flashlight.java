@@ -43,6 +43,7 @@ public class Flashlight extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flashlight);
         getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+        startService(new Intent(this, FlashLightService.class));
         onoff=(Button)findViewById(R.id.onoffbutton);
         //checking if hardware supports torchlight or not!
         FlashSupport = getApplicationContext().getPackageManager()
@@ -127,13 +128,13 @@ public class Flashlight extends AppCompatActivity {
         super.onDestroy();
     }
 
-    @Override
+   /* @Override
     protected void onPause() {
         super.onPause();
 
         // on pause turn off the flash
         TurnOffFlash();
-    }
+    }*/
 
     @Override
     protected void onRestart() {
@@ -158,11 +159,26 @@ public class Flashlight extends AppCompatActivity {
         getCamera();
     }
 
-    @Override
+    /*@Override
     protected void onStop() {
         super.onStop();
 
         // on stop release the camera
+        if (myCamera != null) {
+            myCamera.release();
+            myCamera = null;
+        }
+    }*/
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        myParameters = myCamera.getParameters();
+        myParameters.setFlashMode(Parameters.FLASH_MODE_OFF);
+        myCamera.setParameters(myParameters);
+        myCamera.stopPreview();
+        FlashOn = false;
+
         if (myCamera != null) {
             myCamera.release();
             myCamera = null;
