@@ -4,12 +4,8 @@ package flashlightapp.flashlight;
 //UNIVERSITY OF WATERLOO.
 /*
 To fix issue of torch being turned off when:
-1)Phone screen locked
-2)make it run in the background
 */
 import android.app.AlertDialog;
-import android.app.KeyguardManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,31 +16,32 @@ import android.os.PowerManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Flashlight extends AppCompatActivity {
-    Button onoff;
+    Button on,off,SOSbutton;
     private Camera myCamera;
     private boolean FlashOn;
     private boolean ScreenOn;
     private boolean FlashSupport;
+    private boolean SOSon=true;
     Parameters myParameters;
     PowerManager pm;
     Timer mTimer;
     TimerTask mTimerTask;
+    Thread Flashthread;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flashlight);
         getWindow().getDecorView().setBackgroundColor(Color.BLACK);
         startService(new Intent(this, FlashLightService.class));
-        onoff=(Button)findViewById(R.id.onoffbutton);
+        on=(Button)findViewById(R.id.ONbutton);
+        off=(Button)findViewById(R.id.OFFbutton);
+        SOSbutton=(Button)findViewById(R.id.SOSButton1);
         //checking if hardware supports torchlight or not!
         FlashSupport = getApplicationContext().getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
@@ -68,7 +65,20 @@ public class Flashlight extends AppCompatActivity {
 
         //Get Camera features
         getCamera();
-        onoff.setOnClickListener(new View.OnClickListener() {
+        on.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (FlashOn) {
+                    // turn off flash
+                    //TurnOffFlash();
+                } else {
+                    // turn on flash
+                    TurnOnFlash();
+                }
+            }
+        });
+        off.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -77,10 +87,24 @@ public class Flashlight extends AppCompatActivity {
                     TurnOffFlash();
                 } else {
                     // turn on flash
-                    TurnOnFlash();
+                   // TurnOffFlash();
                 }
             }
         });
+
+        SOSbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    onSOSPress();
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+              }
+        });
+
     }
 
     // Get the camera
@@ -96,20 +120,25 @@ public class Flashlight extends AppCompatActivity {
         }
     }
 
-    public void TurnOnFlash() {
+    private void TurnOnFlash() {
         if (!FlashOn) {
             if (myCamera == null || myParameters == null) {
                 return;
             }
             myParameters = myCamera.getParameters();
-            myParameters.setFlashMode(Parameters.FLASH_MODE_TORCH);
-            myCamera.setParameters(myParameters);
+            try {
+                myParameters.setFlashMode(Parameters.FLASH_MODE_TORCH);
+            }catch (Exception ex)
+            {
+                throw ex;
+            }
+                myCamera.setParameters(myParameters);
             myCamera.startPreview();
             FlashOn = true;
         }
 
     }
-    public void TurnOffFlash() {
+    private void TurnOffFlash() {
         if (FlashOn) {
             if (myCamera == null || myParameters == null) {
                 return;
@@ -121,7 +150,6 @@ public class Flashlight extends AppCompatActivity {
             FlashOn = false;
      }
     }
-
 
     @Override
     protected void onDestroy() {
@@ -184,5 +212,30 @@ public class Flashlight extends AppCompatActivity {
             myCamera = null;
         }
     }
-
+    void onSOSPress() {
+        if (SOSon) {
+             Flashthread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < System.currentTimeMillis(); i++) {
+                        if (FlashOn) {
+                            TurnOffFlash();
+                        } else {
+                            TurnOnFlash();
+                        }
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (!SOSon){
+                                Flashthread.stop();
+                            break;
+                        }
+                    }
+                }
+            });
+            Flashthread.start();
+        }
+    }
 }
