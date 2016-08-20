@@ -239,7 +239,7 @@ public class Flashlight extends AppCompatActivity {
                                             }
                                             catch (Exception ex)
                                             {
-                                                logger.log(Level.SEVERE, "an exception was thrown", ex);
+                                                //logger.log(Level.SEVERE, "an exception was thrown", ex);
                                             }
                                            myCamera.stopPreview();
                                            FlashOn = false;
