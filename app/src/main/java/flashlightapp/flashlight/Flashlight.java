@@ -4,9 +4,15 @@ package flashlightapp.flashlight;
 //UNIVERSITY OF WATERLOO.
 /*
 To fix issue of torch being turned off when:
-1)Using a handler.
+1)Main screen different colors(Disco Mode)
 */
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,13 +21,11 @@ import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.NotificationCompat;
 import android.view.View;
 import android.widget.Button;
-
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
+@TargetApi(16)
 public class Flashlight extends AppCompatActivity {
     Button on, off, SOSbutton;
     private Camera myCamera;
@@ -31,6 +35,7 @@ public class Flashlight extends AppCompatActivity {
     private boolean SOSon;
     private boolean FlashThreadStop=false;
     Parameters myParameters;
+    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
     Thread Flashthread = new Thread();
     Logger logger = Logger.getAnonymousLogger();
 
@@ -66,6 +71,17 @@ public class Flashlight extends AppCompatActivity {
 
         //Get Camera features
         getCamera();
+        mBuilder.setSmallIcon(R.mipmap.f_lashlight);
+        mBuilder.setContentTitle("FLASHLIGHT");
+        mBuilder.setContentText("ON");
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(1,mBuilder.build());
+        Intent resultIntent = new Intent(this, Flashlight.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(Flashlight.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(resultPendingIntent);
         on.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -247,7 +263,7 @@ public class Flashlight extends AppCompatActivity {
                                             TurnOnFlash();
                                         }
                                         try {
-                                            Thread.sleep(1000);
+                                            Thread.sleep(100);
                                         } catch (InterruptedException e) {
                                             e.printStackTrace();
                                         }

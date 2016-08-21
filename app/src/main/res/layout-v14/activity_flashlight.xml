@@ -15,17 +15,17 @@
         android:text="ON"
         android:id="@+id/ONbutton"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="172dp" />
+        android:layout_toRightOf="@+id/SOSButton1"
+        android:layout_toEndOf="@+id/SOSButton1" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="SOS"
         android:id="@+id/SOSButton1"
-        android:layout_alignTop="@+id/ONbutton"
-        android:layout_toLeftOf="@+id/ONbutton"
-        android:layout_toStartOf="@+id/ONbutton" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
